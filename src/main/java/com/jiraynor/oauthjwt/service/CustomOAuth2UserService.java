@@ -36,6 +36,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         System.out.println("OAuth2Response: " + oAuth2Response);
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
         UserEntity existData = userRepository.findByUsername(username);
+        System.out.println("username = " + username);
         System.out.println("Existing User: " + existData);
 
         if (existData == null) {
@@ -56,15 +57,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             return new CustomOAuth2User(userDTO);
         } else {
-            UserEntity updatedUser = existData.updateEmailAndName(oAuth2Response.getEmail(), oAuth2Response.getName());
-            userRepository.save(updatedUser);
-
             UserDTO userDTO = UserDTO.builder()
-                    .username(updatedUser.getUsername())
-                    .name(updatedUser.getName())
-                    .role(updatedUser.getRole())
+                    .username(existData.getUsername())
+                    .name(existData.getName())
+                    .role(existData.getRole())
                     .build();
-
             return new CustomOAuth2User(userDTO);
         }
     }
