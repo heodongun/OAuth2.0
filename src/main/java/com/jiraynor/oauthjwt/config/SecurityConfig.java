@@ -2,6 +2,7 @@ package com.jiraynor.oauthjwt.config;
 
 import com.jiraynor.oauthjwt.jwt.JWTFilter;
 import com.jiraynor.oauthjwt.jwt.JWTUtil;
+import com.jiraynor.oauthjwt.oauth2.CustomFailureHandler;
 import com.jiraynor.oauthjwt.oauth2.CustomSuccessHandler;
 import com.jiraynor.oauthjwt.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
     private final CustomSuccessHandler customSuccessHandler;
+    private final CustomFailureHandler customFailureHandler;
     private final JWTUtil jwtUtil;
 
 
@@ -40,6 +42,7 @@ public class SecurityConfig {
                         .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
                                 .userService(customOAuth2UserService))
                         .successHandler(customSuccessHandler)
+                        .failureHandler(customFailureHandler)
                 );
         http.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
         http.authorizeHttpRequests((auth) -> auth
