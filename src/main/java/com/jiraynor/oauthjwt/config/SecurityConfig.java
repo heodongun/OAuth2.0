@@ -39,30 +39,30 @@ public class SecurityConfig {
         http.formLogin((auth) -> auth.disable());
         http.httpBasic((auth) -> auth.disable());
         http.oauth2Login((oauth2) -> oauth2
-                        .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService))
-                        .successHandler(customSuccessHandler)
-                        .failureHandler(customFailureHandler)
-                );
+                .userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                        .userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler)
+                .failureHandler(customFailureHandler)
+        );
         http.addFilterAfter(new JWTFilter(jwtUtil), OAuth2LoginAuthenticationFilter.class);
         http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/").permitAll()
-                        .anyRequest().authenticated());
+                .requestMatchers("/").permitAll()
+                .anyRequest().authenticated());
         http.sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration configuration = new CorsConfiguration();
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-                        configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-                        return configuration;
-                    }
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                configuration.setAllowedMethods(Collections.singletonList("*"));
+                configuration.setAllowCredentials(true);
+                configuration.setAllowedHeaders(Collections.singletonList("*"));
+                configuration.setMaxAge(3600L);
+                configuration.setExposedHeaders(Collections.singletonList("Set-Cookie"));
+                configuration.setExposedHeaders(Collections.singletonList("Authorization"));
+                return configuration;
+            }
         }));
         return http.build();
     }

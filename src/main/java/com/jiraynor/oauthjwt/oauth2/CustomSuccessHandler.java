@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -38,19 +39,45 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String token = jwtUtil.createJwt(username, role, 60*60*60L);
         System.out.println("token = " + token);
-        response.addCookie(createCookie("access", token));
-        response.addCookie(createCookie("refresh", token));
-        response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:3000/");
+//        response.addCookie(UncreateCookie("access", token));
+//        response.addCookie(createCookie("refresh", token));
+//        response.addCookie(createCookie("Authorization", token));
+        // Spring에서 ResponseCookie를 이용해서 쿠키를 생성할 수 있다.
+        ResponseCookie strictCookie = ResponseCookie.from("strict", token)
+                .path("/")
+                .sameSite("strict")
+                .domain("localhost")
+                .build();
+        response.addHeader("Set-Cookie", strictCookie.toString());
+
+        ResponseCookie laxCookie = ResponseCookie.from("Lax", token)
+                .path("/")
+                .sameSite("Lax")
+                .domain("localhost")
+                .build();
+        response.addHeader("Set-Cookie", laxCookie.toString());
+
+        ResponseCookie noneCookie = ResponseCookie.from("none", token)
+                .path("/")
+                .sameSite("none")
+                .domain("localhost")
+                .build();
+        response.addHeader("Set-Cookie", noneCookie.toString());
+        response.addHeader("hello","heodongun");
+        response.sendRedirect("http://localhost:3000/oauth-success?accessToken="+token);
     }
 
     private Cookie createCookie(String key, String value) {
-
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(60*60*60);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-
+        return cookie;
+    }
+    private Cookie UncreateCookie(String key, String value) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        cookie.setPath("/");
         return cookie;
     }
 }
